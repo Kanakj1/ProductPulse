@@ -1,0 +1,58 @@
+{
+  "manifest_version": "1.0",
+  "created_at_utc": "2026-10-15T06:15:15.277397+00:00",
+  "random_seed": 42,
+  "database_path": "backend/db/productpulse.db",
+  "total_source_reviews": 25000,
+  "total_source_parent_asins": 19065,
+  "sample_a": {
+    "sample_type": "sample_a_detection",
+    "target_sentence_count": 200,
+    "actual_sentence_count": 200,
+    "total_annotation_units": 1200,
+    "csv_path": "data/annotation\\sample_a_aspect_detection_template.csv",
+    "jsonl_path": "data/annotation\\sample_a_aspect_detection_template.jsonl",
+    "blank_human_decision_cells": 1200,
+    "selection_rationale": "Uniform random sentence sampling across non-blank mobile reviews without keyword filtering.",
+    "rating_tier_distribution": {
+      "1-2_star": 35,
+      "3_star": 11,
+      "4-5_star": 154
+    }
+  },
+  "sample_b": {
+    "sample_type": "sample_b_sentiment",
+    "target_sentence_count": 200,
+    "actual_sentence_count": 200,
+    "total_annotation_units": 200,
+    "csv_path": "data/annotation\\sample_b_aspect_sentiment_template.csv",
+    "jsonl_path": "data/annotation\\sample_b_aspect_sentiment_template.jsonl",
+    "blank_human_decision_cells": 400,
+    "selection_rationale": "Aspect-enriched sentence sampling stratified by 6 aspects and 3 rating tiers using domain lexicon.",
+    "per_aspect_counts": {
+      "build_durability": 34,
+      "battery_charging": 34,
+      "screen_display": 33,
+      "camera_optics": 33,
+      "connectivity_audio": 33,
+      "performance_software": 33
+    },
+    "rating_tier_distribution": {
+      "1-2_star": 68,
+      "3_star": 66,
+      "4-5_star": 66
+    },
+    "shortfalls": []
+  },
+  "overlap_audit": {
+    "sample_a_sentence_count": 200,
+    "sample_b_sentence_count": 200,
+    "overlapping_sentence_count": 0,
+    "disjoint_guarantee_met": true
+  },
+  "academic_disclosure": {
+    "status": "Student pilot benchmark",
+    "population_prevalence_claim": false,
+    "limitations": "Sample B is keyword-enriched and stratifies rating tiers intentionally; aspect frequencies do not reflect market-wide prevalence."
+  }
+}

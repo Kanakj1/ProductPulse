@@ -1,0 +1,22 @@
+FROM apache/hadoop:3.3.6
+
+USER root
+
+ENV HIVE_HOME=/opt/hive
+ENV PATH=$PATH:$HIVE_HOME/bin
+ENV HADOOP_HOME=/opt/hadoop
+
+# Copy verified Hive 3.1.3 distribution
+COPY downloads/apache-hive-3.1.3-bin.tar.gz /tmp/
+
+# Extract, resolve Hadoop 3.3.6 Guava compatibility, and configure permissions
+RUN tar -xzf /tmp/apache-hive-3.1.3-bin.tar.gz -C /opt && \
+    mv /opt/apache-hive-3.1.3-bin /opt/hive && \
+    rm -f /tmp/apache-hive-3.1.3-bin.tar.gz && \
+    rm -f /opt/hive/lib/guava-19.0.jar && \
+    cp /opt/hadoop/share/hadoop/common/lib/guava-27.0-jre.jar /opt/hive/lib/ && \
+    chown -R hadoop:users /opt/hive && \
+    chmod -R 755 /opt/hive
+
+USER hadoop
+WORKDIR /opt/hadoop

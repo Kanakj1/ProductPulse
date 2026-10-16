@@ -1,0 +1,45 @@
+{
+  "report_version": "1.0",
+  "generated_at_utc": "2026-10-15T07:16:02.724731+00:00",
+  "disclaimer": "AUTOMATICALLY GENERATED DRAFT LABELS. These annotations were generated deterministically using rule-based keyword lexicons, negation tracking, and heuristics. They are NOT human gold annotations and have NOT been verified by a human. Do not report baseline model accuracy or benchmark performance against these labels as if they were human truth.",
+  "methodology": {
+    "aspect_detection": "Domain-locked regex lexicon with negative idiom disambiguation ('in this case', etc.)",
+    "sentiment_classification": "Lexicon matching with 3-token lookback negation flipping and contrastive conjunction mixed-sentiment detection",
+    "uncertainty_policy": "Unresolved presence left blank (unannotated); ambiguous/mixed sentiment classified as 'uncertain/unclassified'"
+  },
+  "sample_a_detection_draft": {
+    "source_csv": "data/annotation/sample_a_aspect_detection_auto_draft.csv",
+    "canonical_template": "data/annotation/sample_a_aspect_detection_template.jsonl",
+    "statistics": {
+      "total_sentences": 200,
+      "total_aspect_decisions": 1200,
+      "present_count": 99,
+      "absent_count": 1007,
+      "unresolved_count": 94,
+      "per_aspect_present": {
+        "build_durability": 41,
+        "battery_charging": 21,
+        "screen_display": 15,
+        "camera_optics": 6,
+        "connectivity_audio": 6,
+        "performance_software": 10
+      }
+    }
+  },
+  "sample_b_sentiment_draft": {
+    "source_csv": "data/annotation/sample_b_aspect_sentiment_auto_draft.csv",
+    "canonical_template": "data/annotation/sample_b_aspect_sentiment_template.jsonl",
+    "statistics": {
+      "total_units": 200,
+      "confirmed_present": 153,
+      "confirmed_absent": 45,
+      "unresolved": 2,
+      "sentiment_distribution": {
+        "positive": 45,
+        "neutral": 70,
+        "negative": 20,
+        "uncertain/unclassified": 18
+      }
+    }
+  }
+}

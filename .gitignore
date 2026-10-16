@@ -1,0 +1,28 @@
+﻿# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Local database
+backend/db/*.db
+backend/db/*.sqlite*
+
+# Raw review dataset
+data/raw/*.jsonl
+
+# Logs and temporary files
+*.log
+.DS_Store
+Thumbs.db
+
+scripts/bda/downloads/

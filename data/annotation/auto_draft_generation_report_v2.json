@@ -1,0 +1,45 @@
+{
+  "report_version": "2.0",
+  "generated_at_utc": "2026-10-15T07:34:40.177222+00:00",
+  "disclaimer": "AUTOMATICALLY GENERATED DRAFT LABELS. These annotations were generated deterministically using rule-based keyword lexicons, negation tracking, and heuristics. They are NOT human gold annotations and have NOT been verified by a human. Do not report baseline model accuracy or benchmark performance against these labels as if they were human truth.",
+  "methodology": {
+    "aspect_detection": "Domain-locked regex lexicon with targeted heuristic disambiguations: 1. Micro/micro-USB excluded from mic/microphone audio detection. 2. Listing photos ('picture included', 'in the picture') and [[VIDEOID:...]] excluded from camera detection. 3. Discourse 'focus on' excluded from camera detection without optical context. 4. Idioms ('in my case', 'in this case', 'just in case') excluded from build/durability. 5. Physical texture ('smooth texture', 'smooth feel', 'paint chips') excluded from software performance. 6. Bounded audio/connectivity ('headset', 'pairing', 'connection') with context gating.",
+    "sentiment_classification": "Lexicon matching with 3-token lookback negation flipping and contrastive conjunction mixed-sentiment detection",
+    "uncertainty_policy": "Unresolved presence left blank (unannotated); ambiguous/mixed sentiment classified as 'uncertain/unclassified'"
+  },
+  "sample_a_detection_draft": {
+    "source_csv": "data/annotation/sample_a_aspect_detection_auto_draft_v2.csv",
+    "canonical_template": "data/annotation/sample_a_aspect_detection_template.jsonl",
+    "statistics": {
+      "total_sentences": 200,
+      "total_aspect_decisions": 1200,
+      "present_count": 91,
+      "absent_count": 1015,
+      "unresolved_count": 94,
+      "per_aspect_present": {
+        "build_durability": 41,
+        "battery_charging": 21,
+        "screen_display": 15,
+        "camera_optics": 2,
+        "connectivity_audio": 5,
+        "performance_software": 7
+      }
+    }
+  },
+  "sample_b_sentiment_draft": {
+    "source_csv": "data/annotation/sample_b_aspect_sentiment_auto_draft_v2.csv",
+    "canonical_template": "data/annotation/sample_b_aspect_sentiment_template.jsonl",
+    "statistics": {
+      "total_units": 200,
+      "confirmed_present": 149,
+      "confirmed_absent": 49,
+      "unresolved": 2,
+      "sentiment_distribution": {
+        "positive": 44,
+        "neutral": 68,
+        "negative": 20,
+        "uncertain/unclassified": 17
+      }
+    }
+  }
+}

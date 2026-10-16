@@ -1,0 +1,3 @@
+"""
+ProductPulse — FastAPI Application Package
+"""

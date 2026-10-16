@@ -1,0 +1,7 @@
+aspect,low_rating_reviews_1_to_2_stars,med_rating_reviews_3_stars,high_rating_reviews_4_to_5_stars,total_aspect_reviews,high_rating_pct,low_rating_pct
+build_durability,1503,1032,8311,10846,76.63,13.86
+battery_charging,604,353,3557,4514,78.80,13.38
+screen_display,735,426,3189,4350,73.31,16.90
+performance_software,303,238,1965,2506,78.41,12.09
+camera_optics,334,237,1685,2256,74.69,14.80
+connectivity_audio,264,190,1103,1557,70.84,16.96

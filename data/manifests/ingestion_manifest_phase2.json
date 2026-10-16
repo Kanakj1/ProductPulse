@@ -1,0 +1,56 @@
+{
+  "manifest_version": "1.0",
+  "dataset_name": "McAuley-Lab/Amazon-Reviews-2023",
+  "category": "Cell_Phones_and_Accessories",
+  "source_url": "https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023/resolve/main/raw/review_categories/Cell_Phones_and_Accessories.jsonl",
+  "ingestion_timestamps": {
+    "start_utc": "2026-10-14T16:27:03Z",
+    "end_utc": "2026-10-14T16:27:05Z",
+    "elapsed_seconds": 2.609
+  },
+  "limits_enforced": {
+    "target_records": 25000,
+    "max_body_bytes_cap": 15728640,
+    "cumulative_timeout_seconds": 30.0
+  },
+  "transport_evidence": {
+    "final_status": 206,
+    "content_range": "bytes 0-15728639/9342568048",
+    "total_bytes_streamed": 14286848,
+    "redirect_hops": [
+      {
+        "hop": 1,
+        "domain": "huggingface.co",
+        "status": 302
+      },
+      {
+        "hop": 2,
+        "domain": "us.aws.cdn.hf.co",
+        "status": 206
+      }
+    ]
+  },
+  "ingestion_outcomes": {
+    "admitted_records_count": 25000,
+    "target_reached": true,
+    "total_lines_processed": 25000,
+    "trailing_incomplete_bytes": 40507,
+    "parse_errors_count": 0,
+    "validation_errors_count": 0,
+    "duplicates_count": 5,
+    "unique_parent_asins_count": 19065,
+    "unique_asins_count": 20484,
+    "unique_users_count": 7056
+  },
+  "output_files": {
+    "raw_jsonl_path": "D:\\ProductPulse-nlp-bda\\data\\raw\\sample_reviews_cell_phones_25k.jsonl",
+    "raw_jsonl_bytes": 14241285,
+    "raw_jsonl_sha256": "86eca6adea79bb125fb373bde6a1d5b0e8027211754ba229b171e6d42f5e495a",
+    "manifest_path": "D:\\ProductPulse-nlp-bda\\data\\manifests\\ingestion_manifest_phase2.json"
+  },
+  "academic_disclosures": {
+    "sampling_nature": "Convenience prefix sample derived from byte range of remote JSONL",
+    "population_claims_allowed": false,
+    "intended_use": "Pipeline verification, aspect mining, NLP sentiment demonstration, and local MapReduce benchmarking"
+  }
+}

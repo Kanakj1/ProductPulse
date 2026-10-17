@@ -4,6 +4,7 @@ import type { ProductDetailResponse, ReviewListResponse } from '../../types/api.
 import { StarRating } from '../common/StarRating.tsx';
 import { StatusBadge } from '../common/StatusBadge.tsx';
 import { Pagination } from '../common/Pagination.tsx';
+import { ProductRatingTrendChart, type RatingPoint } from './ProductRatingTrendChart.tsx';
 
 interface ProductDashboardViewProps {
   parentAsin: string;
@@ -25,6 +26,10 @@ export const ProductDashboardView: React.FC<ProductDashboardViewProps> = ({
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsOffset, setReviewsOffset] = useState(0);
   const reviewsLimit = 5;
+
+  // Rating timeline state for the trend chart
+  const [trendData, setTrendData] = useState<RatingPoint[]>([]);
+  const [trendLoading, setTrendLoading] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     setDetailLoading(true);
@@ -51,12 +56,56 @@ export const ProductDashboardView: React.FC<ProductDashboardViewProps> = ({
     }
   }, [parentAsin]);
 
+  const fetchTrend = useCallback(async () => {
+    setTrendLoading(true);
+    // Fetch up to 100 actual reviews for this parent ASIN to compute real timeline data points
+    const res = await getReviews({
+      parent_asin: parentAsin,
+      limit: 100,
+      offset: 0,
+    });
+    setTrendLoading(false);
+
+    if (res.success && res.data.items && res.data.items.length > 0) {
+      const monthMap = new Map<string, { sum: number; count: number }>();
+
+      res.data.items.forEach((rev) => {
+        if (!rev.review_timestamp_utc) return;
+        const ym = rev.review_timestamp_utc.slice(0, 7); // e.g. "2021-03"
+        const existing = monthMap.get(ym) || { sum: 0, count: 0 };
+        existing.sum += rev.rating;
+        existing.count += 1;
+        monthMap.set(ym, existing);
+      });
+
+      const sortedPeriods = Array.from(monthMap.keys()).sort();
+      const points: RatingPoint[] = sortedPeriods.map((ym) => {
+        const item = monthMap.get(ym)!;
+        const [year, month] = ym.split('-');
+        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+        const label = dateObj.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+        return {
+          period: ym,
+          label,
+          avgRating: Math.round((item.sum / item.count) * 100) / 100,
+          reviewCount: item.count,
+        };
+      });
+
+      setTrendData(points);
+    } else {
+      setTrendData([]);
+    }
+  }, [parentAsin]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     fetchDetail();
     setReviewsOffset(0);
     fetchReviews(0);
-  }, [fetchDetail, fetchReviews]);
+    fetchTrend();
+  }, [fetchDetail, fetchReviews, fetchTrend]);
 
   const handleReviewsPageChange = (newOffset: number) => {
     setReviewsOffset(newOffset);
@@ -156,27 +205,22 @@ export const ProductDashboardView: React.FC<ProductDashboardViewProps> = ({
                       Brand: {detail.brand}
                     </span>
                   )}
-                  <StatusBadge
-                    label={detail.has_metadata ? 'Catalog Metadata Available' : 'Catalog Metadata Pending'}
-                    variant={detail.has_metadata ? 'success' : 'neutral'}
-                    size="sm"
-                  />
+                  {detail.has_metadata && (
+                    <StatusBadge
+                      label="Catalog Metadata Available"
+                      variant="success"
+                      size="sm"
+                    />
+                  )}
                 </div>
 
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
                   {detail.title ? (
                     detail.title
                   ) : (
-                    <span className="text-slate-800">Product name unavailable</span>
+                    <span className="font-mono text-slate-900">{detail.parent_asin || 'ASIN unavailable'}</span>
                   )}
                 </h1>
-
-                {!detail.title && (
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Product catalog titles and stock imagery are pending metadata ingestion from the upstream Amazon catalog.
-                    Canonical identifier <code className="font-mono font-semibold text-slate-700">{detail.parent_asin}</code> connects all customer reviews and distributed MapReduce aggregations without synthetic names.
-                  </p>
-                )}
               </div>
 
               <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 lg:w-72 shrink-0 space-y-2">
@@ -256,6 +300,16 @@ export const ProductDashboardView: React.FC<ProductDashboardViewProps> = ({
                 </div>
               </div>
             )}
+
+            {/* Customer Rating Trend Over Time Chart or Distribution */}
+            <div className="pt-2">
+              <ProductRatingTrendChart
+                trendData={trendData}
+                ratingDistribution={detail.rating_distribution}
+                totalReviews={detail.review_count}
+                loading={trendLoading}
+              />
+            </div>
           </div>
 
           {/* ========================================================= */}

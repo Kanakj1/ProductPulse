@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { getProducts } from '../../api/client.ts';
 import type { ProductSummary, ProductListResponse } from '../../types/api.ts';
 import { StarRating } from '../common/StarRating.tsx';
-import { StatusBadge } from '../common/StatusBadge.tsx';
 import { Pagination } from '../common/Pagination.tsx';
 import { OfflineBanner } from '../common/OfflineBanner.tsx';
 import { ProductDashboardView } from './ProductDashboardView.tsx';
@@ -126,24 +125,14 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
           </div>
         </div>
 
-        {/* Rating & Metadata Disclosure Banner */}
-        <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>
-              <strong>Rating Basis:</strong> {ratingBasis || 'source_star_rating (1.0 - 5.0, unpredicted customer reviews)'}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <span>
-              <strong>Metadata Status:</strong> Product titles/brands/photos pending; canonical ASINs used without synthetic labels.
-            </span>
-          </div>
+        {/* Rating Basis Disclosure Banner */}
+        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-500">
+          <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>
+            <strong>Rating Basis:</strong> {ratingBasis || 'source_star_rating (1.0 - 5.0, unpredicted customer reviews)'}
+          </span>
         </div>
       </div>
 
@@ -198,8 +187,8 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
               <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
                 <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider">
                   <tr>
-                    <th scope="col" className="px-4 py-3">Product Name & ASIN</th>
-                    <th scope="col" className="px-4 py-3">Catalogue Metadata</th>
+                    <th scope="col" className="px-4 py-3">Product Name & Category</th>
+                    <th scope="col" className="px-4 py-3">Canonical ASIN</th>
                     <th scope="col" className="px-4 py-3 text-right">Genuine Reviews</th>
                     <th scope="col" className="px-4 py-3 text-right">Source Customer Rating</th>
                     <th scope="col" className="px-4 py-3 text-right">Actions</th>
@@ -219,13 +208,10 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
                             {product.title ? (
                               product.title
                             ) : (
-                              <span className="text-slate-800">Product name unavailable</span>
+                              <span className="font-mono text-slate-900">{product.parent_asin || 'ASIN unavailable'}</span>
                             )}
                           </span>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded">
-                              ASIN: {product.parent_asin}
-                            </span>
                             <span className="text-[11px] text-slate-400 font-mono">
                               Category: {product.main_category}
                             </span>
@@ -233,14 +219,12 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
                         </div>
                       </td>
 
-                      {/* Catalogue Metadata Status */}
+                      {/* Canonical ASIN & Brand */}
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <StatusBadge
-                            label={product.has_metadata ? 'Catalog Title' : 'Title Pending'}
-                            variant={product.has_metadata ? 'success' : 'neutral'}
-                            size="sm"
-                          />
+                          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
+                            {product.parent_asin || 'ASIN unavailable'}
+                          </span>
                           {product.brand && (
                             <span className="text-[11px] text-slate-500 font-medium">
                               Brand: {product.brand}
@@ -304,22 +288,19 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <span className="font-semibold text-slate-900 text-sm block">
-                        {product.title ? product.title : 'Product name unavailable'}
+                        {product.title ? product.title : (
+                          <span className="font-mono">{product.parent_asin || 'ASIN unavailable'}</span>
+                        )}
                       </span>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded">
-                          ASIN: {product.parent_asin}
-                        </span>
                         <span className="text-[11px] text-slate-400 font-mono">
                           {product.main_category}
                         </span>
                       </div>
                     </div>
-                    <StatusBadge
-                      label={product.has_metadata ? 'Catalog Title' : 'Title Pending'}
-                      variant={product.has_metadata ? 'success' : 'neutral'}
-                      size="sm"
-                    />
+                    <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shrink-0">
+                      {product.parent_asin || 'ASIN unavailable'}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded border border-slate-100">

@@ -287,8 +287,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   <span className="font-mono text-xs font-bold text-slate-900 block truncate">
                     {p.parent_asin}
                   </span>
-                  <span className="text-[10px] text-slate-400 block mb-2">
-                    Metadata pending
+                  <span className="text-[10px] text-slate-400 block mb-2 truncate">
+                    {p.main_category}
                   </span>
                 </div>
 

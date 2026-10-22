@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { getProducts } from '../../api/client.ts';
 import type { ProductSummary, ProductListResponse } from '../../types/api.ts';
 import { StarRating } from '../common/StarRating.tsx';
@@ -25,6 +25,9 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ isNetworkError: boolean; message: string; detail?: string } | null>(null);
   const [fetchTrigger, setFetchTrigger] = useState(0);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Local selection state for dashboard view if not strictly controlled from parent
   const [localSelectedAsin, setLocalSelectedAsin] = useState<string | null>(null);
@@ -82,6 +85,18 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
     setFetchTrigger((n) => n + 1);
   };
 
+  // Filter products by canonical ASIN or product title
+  const filteredProducts = useMemo(() => {
+    const trimmed = searchQuery.trim().toLowerCase();
+    if (!trimmed) return products;
+    return products.filter((p) => {
+      const matchAsin = p.parent_asin.toLowerCase().includes(trimmed);
+      const matchTitle = p.title ? p.title.toLowerCase().includes(trimmed) : false;
+      const matchCategory = p.main_category ? p.main_category.toLowerCase().includes(trimmed) : false;
+      return matchAsin || matchTitle || matchCategory;
+    });
+  }, [products, searchQuery]);
+
   // If a product is currently selected, render the dedicated Individual Product Dashboard
   if (activeProductAsin) {
     return (
@@ -133,6 +148,46 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
           <span>
             <strong>Rating Basis:</strong> {ratingBasis || 'source_star_rating (1.0 - 5.0, unpredicted customer reviews)'}
           </span>
+        </div>
+      </div>
+
+      {/* Prominent Navy-Blue Search Bar */}
+      <div className="bg-slate-900 rounded-xl p-4 sm:p-5 shadow-md border border-slate-800">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products by ASIN or product name..."
+              className="w-full pl-11 pr-10 py-2.5 text-sm bg-slate-800/90 hover:bg-slate-800 focus:bg-slate-800 text-white placeholder-slate-400 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all font-sans"
+              aria-label="Search products by ASIN or product name"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors"
+                aria-label="Clear search query"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-sky-400 font-mono bg-sky-950/70 border border-sky-800/60 px-2.5 py-1.5 rounded-lg">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'match' : 'matches'} on page
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -195,148 +250,179 @@ export const ProductCatalogueView: React.FC<ProductCatalogueViewProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white">
-                  {products.map((product) => (
-                    <tr
-                      key={product.parent_asin}
-                      className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
-                      onClick={() => handleOpenProductDashboard(product.parent_asin)}
-                    >
-                      {/* Product Name & Identifier */}
-                      <td className="px-4 py-3.5 max-w-sm">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-slate-900 group-hover:text-brand-600 transition-colors text-sm">
-                            {product.title ? (
-                              product.title
-                            ) : (
-                              <span className="font-mono text-slate-900">{product.parent_asin || 'ASIN unavailable'}</span>
-                            )}
-                          </span>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[11px] text-slate-400 font-mono">
-                              Category: {product.main_category}
-                            </span>
-                          </div>
+                  {filteredProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-12 text-center text-slate-500">
+                        <div className="max-w-sm mx-auto space-y-2">
+                          <p className="font-semibold text-slate-700">No products match "{searchQuery}"</p>
+                          <p className="text-xs text-slate-400">Try searching with a different canonical ASIN or keyword.</p>
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery('')}
+                            className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-800 underline"
+                          >
+                            Clear search filter
+                          </button>
                         </div>
-                      </td>
-
-                      {/* Canonical ASIN & Brand */}
-                      <td className="px-4 py-3.5 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
-                            {product.parent_asin || 'ASIN unavailable'}
-                          </span>
-                          {product.brand && (
-                            <span className="text-[11px] text-slate-500 font-medium">
-                              Brand: {product.brand}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Genuine Review Count */}
-                      <td className="px-4 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-slate-800">
-                        {product.review_count.toLocaleString()}
-                      </td>
-
-                      {/* Average Customer Star Rating */}
-                      <td className="px-4 py-3.5 whitespace-nowrap text-right">
-                        <div className="flex justify-end">
-                          <StarRating rating={product.avg_rating} size="sm" />
-                        </div>
-                      </td>
-
-                      {/* Action Buttons */}
-                      <td
-                        className="px-4 py-3.5 whitespace-nowrap text-right space-x-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => handleOpenProductDashboard(product.parent_asin)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500"
-                          aria-label={`Open product dashboard for ${product.parent_asin}`}
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                          </svg>
-                          <span>Dashboard</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => onSelectProductForReviews(product.parent_asin)}
-                          className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent hover:border-slate-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
-                          aria-label={`Browse reviews for ${product.parent_asin}`}
-                        >
-                          Reviews
-                        </button>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredProducts.map((product) => (
+                      <tr
+                        key={product.parent_asin}
+                        className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
+                        onClick={() => handleOpenProductDashboard(product.parent_asin)}
+                      >
+                        {/* Product Name & Identifier */}
+                        <td className="px-4 py-3.5 max-w-sm">
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-slate-900 group-hover:text-brand-600 transition-colors text-sm">
+                              {product.title ? (
+                                product.title
+                              ) : (
+                                <span className="font-mono text-slate-900">{product.parent_asin || 'ASIN unavailable'}</span>
+                              )}
+                            </span>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[11px] text-slate-400 font-mono">
+                                Category: {product.main_category}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Canonical ASIN & Brand */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
+                              {product.parent_asin || 'ASIN unavailable'}
+                            </span>
+                            {product.brand && (
+                              <span className="text-[11px] text-slate-500 font-medium">
+                                Brand: {product.brand}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Genuine Review Count */}
+                        <td className="px-4 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-slate-800">
+                          {product.review_count.toLocaleString()}
+                        </td>
+
+                        {/* Average Customer Star Rating */}
+                        <td className="px-4 py-3.5 whitespace-nowrap text-right">
+                          <div className="flex justify-end">
+                            <StarRating rating={product.avg_rating} size="sm" />
+                          </div>
+                        </td>
+
+                        {/* Action Buttons */}
+                        <td
+                          className="px-4 py-3.5 whitespace-nowrap text-right space-x-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleOpenProductDashboard(product.parent_asin)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            aria-label={`Open product dashboard for ${product.parent_asin}`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            <span>Dashboard</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => onSelectProductForReviews(product.parent_asin)}
+                            className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent hover:border-slate-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+                            aria-label={`Browse reviews for ${product.parent_asin}`}
+                          >
+                            Reviews
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Mobile Card View (Shown on screens < 640px to eliminate horizontal scrolling) */}
             <div className="block sm:hidden divide-y divide-slate-200">
-              {products.map((product) => (
-                <div
-                  key={product.parent_asin}
-                  className="p-4 space-y-3 cursor-pointer hover:bg-slate-50 transition-colors"
-                  onClick={() => handleOpenProductDashboard(product.parent_asin)}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="font-semibold text-slate-900 text-sm block">
-                        {product.title ? product.title : (
-                          <span className="font-mono">{product.parent_asin || 'ASIN unavailable'}</span>
-                        )}
-                      </span>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[11px] text-slate-400 font-mono">
-                          {product.main_category}
+              {filteredProducts.length === 0 ? (
+                <div className="py-10 text-center text-slate-500 p-4">
+                  <p className="font-semibold text-slate-700">No products match "{searchQuery}"</p>
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-800 underline"
+                  >
+                    Clear search filter
+                  </button>
+                </div>
+              ) : (
+                filteredProducts.map((product) => (
+                  <div
+                    key={product.parent_asin}
+                    className="p-4 space-y-3 cursor-pointer hover:bg-slate-50 transition-colors"
+                    onClick={() => handleOpenProductDashboard(product.parent_asin)}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="font-semibold text-slate-900 text-sm block">
+                          {product.title ? product.title : (
+                            <span className="font-mono">{product.parent_asin || 'ASIN unavailable'}</span>
+                          )}
                         </span>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {product.main_category}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shrink-0">
+                        {product.parent_asin || 'ASIN unavailable'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded border border-slate-100">
+                      <div>
+                        <span className="text-[10px] uppercase text-slate-400 block font-semibold">Genuine Reviews</span>
+                        <span className="font-mono font-bold text-slate-800">{product.review_count.toLocaleString()}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] uppercase text-slate-400 block font-semibold">Source Rating</span>
+                        <StarRating rating={product.avg_rating} size="sm" />
                       </div>
                     </div>
-                    <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shrink-0">
-                      {product.parent_asin || 'ASIN unavailable'}
-                    </span>
-                  </div>
 
-                  <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded border border-slate-100">
-                    <div>
-                      <span className="text-[10px] uppercase text-slate-400 block font-semibold">Genuine Reviews</span>
-                      <span className="font-mono font-bold text-slate-800">{product.review_count.toLocaleString()}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] uppercase text-slate-400 block font-semibold">Source Rating</span>
-                      <StarRating rating={product.avg_rating} size="sm" />
+                    <div
+                      className="flex items-center justify-end gap-2 pt-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleOpenProductDashboard(product.parent_asin)}
+                        className="flex-1 py-1.5 text-xs font-semibold text-center text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded transition-colors"
+                        aria-label={`Open product dashboard for ${product.parent_asin}`}
+                      >
+                        View Dashboard
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onSelectProductForReviews(product.parent_asin)}
+                        className="flex-1 py-1.5 text-xs font-medium text-center text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
+                        aria-label={`Browse reviews for ${product.parent_asin}`}
+                      >
+                        Browse Reviews
+                      </button>
                     </div>
                   </div>
-
-                  <div
-                    className="flex items-center justify-end gap-2 pt-1"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleOpenProductDashboard(product.parent_asin)}
-                      className="flex-1 py-1.5 text-xs font-semibold text-center text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded transition-colors"
-                      aria-label={`Open product dashboard for ${product.parent_asin}`}
-                    >
-                      View Dashboard
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onSelectProductForReviews(product.parent_asin)}
-                      className="flex-1 py-1.5 text-xs font-medium text-center text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
-                      aria-label={`Browse reviews for ${product.parent_asin}`}
-                    >
-                      Browse Reviews
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* Pagination Controls */}

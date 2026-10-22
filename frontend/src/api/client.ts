@@ -54,10 +54,11 @@ async function safeFetch<T>(endpoint: string, options?: RequestInit): Promise<Ap
     return { success: true, data };
   } catch (err: unknown) {
     const errMessage = err instanceof Error ? err.message : String(err);
+    const targetUrl = baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000');
     const error: ApiClientError = {
       isNetworkError: true,
-      message: `Cannot connect to ProductPulse backend at ${baseUrl}`,
-      detail: `${errMessage}. Ensure FastAPI is running at ${baseUrl} and CORS allows http://localhost:5173.`,
+      message: `Cannot connect to ProductPulse backend at ${targetUrl}`,
+      detail: `${errMessage}. Ensure FastAPI is running at ${targetUrl} and CORS allows http://localhost:5173.`,
     };
     return { success: false, error };
   }

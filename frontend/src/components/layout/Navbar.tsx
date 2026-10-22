@@ -1,68 +1,55 @@
 import React, { useState } from 'react';
 import type { HealthStatus } from '../../types/api.ts';
+import { Logo } from '../common/Logo.tsx';
 
 export type NavigationTab =
-  | 'overview'
+  | 'home'
   | 'catalogue'
+  | 'bda'
   | 'reviews'
+  | 'overview'
   | 'sentiment'
-  | 'complaints'
-  | 'bda';
+  | 'complaints';
 
 interface NavbarProps {
   activeTab: NavigationTab;
   onSelectTab: (tab: NavigationTab) => void;
-  health: HealthStatus | null;
-  isHealthChecking: boolean;
-  onRefreshHealth: () => void;
+  health?: HealthStatus | null;
+  isHealthChecking?: boolean;
+  onRefreshHealth?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   onSelectTab,
-  health,
-  isHealthChecking,
-  onRefreshHealth,
+  health: _health,
+  isHealthChecking: _isHealthChecking,
+  onRefreshHealth: _onRefreshHealth,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const tabs: { id: NavigationTab; label: string; badge?: string }[] = [
+    { id: 'home', label: 'Home' },
     { id: 'catalogue', label: 'Products' },
     { id: 'bda', label: 'Review Analytics' },
     { id: 'reviews', label: 'Customer Reviews' },
     { id: 'overview', label: 'About & Methodology' },
   ];
 
-  const isOnline = health?.status === 'healthy';
-
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Category Lock */}
-          <div className="flex items-center gap-3">
+          {/* Redesigned Brand Logo */}
+          <div className="flex items-center">
             <button
               type="button"
-              onClick={() => onSelectTab('overview')}
-              className="flex items-center gap-2.5 text-left focus:outline-none"
+              onClick={() => onSelectTab('home')}
+              className="flex items-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
               aria-label="ProductPulse Dashboard Home"
             >
-              <div className="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center text-white shadow-sm font-bold text-lg">
-                P
-              </div>
-              <div>
-                <span className="text-base font-bold text-slate-900 tracking-tight block">
-                  ProductPulse
-                </span>
-                <span className="text-[10px] text-slate-500 font-mono tracking-wider block uppercase">
-                  Analytics Platform
-                </span>
-              </div>
+              <Logo size="md" />
             </button>
-
-            <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200 ml-2">
-              Domain: Cell_Phones_and_Accessories
-            </span>
           </div>
 
           {/* Desktop Navigation Links */}
@@ -98,42 +85,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Right: Backend Connection Status Pill */}
+          {/* Right Controls / Mobile Menu Trigger */}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onRefreshHealth}
-              disabled={isHealthChecking}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
-                isHealthChecking
-                  ? 'bg-slate-50 text-slate-500 border-slate-200'
-                  : isOnline
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                  : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
-              }`}
-              title="Click to re-check backend status (single check, no automatic loop)"
-              aria-label={`Backend connection status: ${
-                isHealthChecking ? 'checking' : isOnline ? 'connected' : 'offline'
-              }. Click to refresh.`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isHealthChecking
-                    ? 'bg-slate-400 animate-pulse'
-                    : isOnline
-                    ? 'bg-emerald-500'
-                    : 'bg-amber-500'
-                }`}
-              />
-              <span className="hidden sm:inline">
-                {isHealthChecking
-                  ? 'Checking...'
-                  : isOnline
-                  ? 'Backend: Online'
-                  : 'Backend: Offline'}
-              </span>
-            </button>
-
             {/* Mobile Hamburger Button */}
             <button
               type="button"
@@ -157,11 +110,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-3 space-y-1">
-          <div className="pb-2 mb-2 border-b border-slate-100">
-            <span className="text-xs text-slate-500">
-              Domain Lock: <strong className="text-slate-700">Cell_Phones_and_Accessories</strong>
-            </span>
-          </div>
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (

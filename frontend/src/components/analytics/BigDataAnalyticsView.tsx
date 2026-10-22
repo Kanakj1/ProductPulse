@@ -128,7 +128,7 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
         <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
         <p className="text-sm font-medium text-slate-600">Loading Hadoop MapReduce & Apache Hive analytics...</p>
-        <span className="text-xs text-slate-400">Reading genuine query exports from data/bda/</span>
+        <span className="text-xs text-slate-400">Loading verified analytics exports from data/bda/</span>
       </div>
     );
   }
@@ -182,7 +182,7 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
               type="button"
               onClick={fetchAllAnalytics}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-              title="Reload latest query exports"
+              title="Reload latest analytics exports"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -251,11 +251,11 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
       {/* ------------------------------------------------------------- */}
       <div className="border-b border-slate-200 flex flex-wrap gap-2">
         {[
-          { id: 'volumes', label: '1. Aspect Volumes (Query 1)' },
-          { id: 'top_products', label: '2. Top Products by Volume (Query 2)' },
-          { id: 'pain_points', label: '3. Potential Pain Points (Query 3)' },
-          { id: 'rating_bands', label: '4. Rating-Band Distributions (Query 4)' },
-          { id: 'penetration', label: '5. Aspect Penetration (Query 5)' },
+          { id: 'volumes', label: '1. Aspect Volumes' },
+          { id: 'top_products', label: '2. Top Products by Volume' },
+          { id: 'pain_points', label: '3. Potential Friction Points' },
+          { id: 'rating_bands', label: '4. Rating-Band Distributions' },
+          { id: 'penetration', label: '5. Aspect Penetration' },
           { id: 'methodology', label: 'Architecture & Provenance' },
         ].map((tab) => (
           <button
@@ -274,14 +274,14 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* SECTION 1: Aspect Discussion Volume (Hive Query 1) */}
+      {/* SECTION 1: Aspect Discussion Volume */}
       {/* ------------------------------------------------------------- */}
       {activeSubTab === 'volumes' && (
         <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Aspect Discussion Volumes & Review-Weighted Ratings</h2>
             <p className="text-xs text-slate-600 mt-1">
-              Grounded in <strong>Hive Query 1</strong> (`hive_query1_aspect_volumes.csv`). Shows total distinct reviews mentioning each locked aspect, review-weighted average star rating, and helpful votes.
+              Aggregated from authentic Apache Hive analytics (`hive_query1_aspect_volumes.csv`). Shows total distinct reviews mentioning each locked aspect, review-weighted average star rating, and helpful votes.
             </p>
           </div>
 
@@ -352,7 +352,7 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* SECTION 2: Top Products by Aspect Volume (Hive Query 2) */}
+      {/* SECTION 2: Top Products by Aspect Volume */}
       {/* ------------------------------------------------------------- */}
       {activeSubTab === 'top_products' && (
         <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
@@ -360,7 +360,7 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
             <div>
               <h2 className="text-lg font-bold text-slate-900">Top Products by Aspect Discussion Volume</h2>
               <p className="text-xs text-slate-600 mt-1">
-                Grounded in <strong>Hive Query 2</strong> (`hive_query2_top_products.csv`). Highlights products with the highest discussion density per aspect.
+                Aggregated from authentic Apache Hive analytics (`hive_query2_top_products.csv`). Highlights products with the highest discussion density per aspect.
               </p>
             </div>
 
@@ -458,15 +458,15 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* SECTION 3: Potential Pain Points (Hive Query 3) */}
+      {/* SECTION 3: Potential Friction Points */}
       {/* ------------------------------------------------------------- */}
       {activeSubTab === 'pain_points' && (
         <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Potential Customer Pain Points by Star Rating</h2>
+              <h2 className="text-lg font-bold text-slate-900">Potential Customer Friction Points by Star Rating</h2>
               <p className="text-xs text-slate-600 mt-1">
-                Grounded in <strong>Hive Query 3</strong> (`hive_query3_aspect_ratings.csv`). Displays product aspects with the lowest customer star ratings (filtered for minimum 5 distinct aspect reviews).
+                Aggregated from authentic Apache Hive analytics (`hive_query3_aspect_ratings.csv`). Displays product aspects with the lowest customer star ratings (filtered for minimum 5 distinct aspect reviews).
               </p>
             </div>
 
@@ -584,14 +584,14 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* SECTION 4: Rating-Band Distributions (Hive Query 4) */}
+      {/* SECTION 4: Rating-Band Distributions */}
       {/* ------------------------------------------------------------- */}
       {activeSubTab === 'rating_bands' && (
         <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Star-Rating Band Distributions Across Aspects</h2>
             <p className="text-xs text-slate-600 mt-1">
-              Grounded in <strong>Hive Query 4</strong> (`hive_query4_rating_bands.csv`). Explicitly categorizes customer star ratings into <strong>Low (1-2 stars)</strong>, <strong>Medium (3 stars)</strong>, and <strong>High (4-5 stars)</strong>.
+              Aggregated from authentic Apache Hive analytics (`hive_query4_rating_bands.csv`). Explicitly categorizes customer star ratings into <strong>Low (1-2 stars)</strong>, <strong>Medium (3 stars)</strong>, and <strong>High (4-5 stars)</strong>.
             </p>
           </div>
 
@@ -661,7 +661,7 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* SECTION 5: Aspect Penetration (Hive Query 5) */}
+      {/* SECTION 5: Aspect Penetration */}
       {/* ------------------------------------------------------------- */}
       {activeSubTab === 'penetration' && (
         <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
@@ -669,7 +669,7 @@ export const BigDataAnalyticsView: React.FC<BigDataAnalyticsViewProps> = ({
             <div>
               <h2 className="text-lg font-bold text-slate-900">Product-Level Aspect Penetration & Coverage</h2>
               <p className="text-xs text-slate-600 mt-1">
-                Grounded in <strong>Hive Query 5</strong> (`hive_query5_aspect_cooccurrence.csv`). Measures the proportion of a product's reviews that discuss a specific aspect (strictly bounded 0.0% to 100.0%).
+                Aggregated from authentic Apache Hive analytics (`hive_query5_aspect_cooccurrence.csv`). Measures the proportion of a product's reviews that discuss a specific aspect (strictly bounded 0.0% to 100.0%).
               </p>
             </div>
 

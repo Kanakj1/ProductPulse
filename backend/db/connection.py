@@ -34,11 +34,12 @@ def get_connection(db_path: Optional[Union[str, Path]] = None) -> sqlite3.Connec
     target_path = get_db_path(db_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
 
-    conn = sqlite3.connect(str(target_path))
+    conn = sqlite3.connect(str(target_path), timeout=30.0, check_same_thread=False)
     conn.row_factory = sqlite3.Row
 
-    # Enforce SQLite foreign keys
+    # Enforce SQLite foreign keys and concurrency settings
     conn.execute("PRAGMA foreign_keys = ON;")
+    conn.execute("PRAGMA busy_timeout = 30000;")
 
     # Strict runtime verification
     cursor = conn.cursor()
@@ -79,9 +80,11 @@ def get_db(db_path: Optional[Union[str, Path]] = None) -> Generator[sqlite3.Conn
     conn = get_connection(db_path)
     try:
         yield conn
-        conn.commit()
+        if conn.in_transaction:
+            conn.commit()
     except Exception:
-        conn.rollback()
+        if conn.in_transaction:
+            conn.rollback()
         raise
     finally:
         conn.close()

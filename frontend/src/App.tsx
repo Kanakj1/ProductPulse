@@ -3,6 +3,7 @@ import { checkHealth } from './api/client.ts';
 import type { HealthStatus } from './types/api.ts';
 import { Navbar, type NavigationTab } from './components/layout/Navbar.tsx';
 import { Footer } from './components/layout/Footer.tsx';
+import { HomeView } from './components/home/HomeView.tsx';
 import { OverviewView } from './components/overview/OverviewView.tsx';
 import { ProductCatalogueView } from './components/catalogue/ProductCatalogueView.tsx';
 import { ReviewsView } from './components/reviews/ReviewsView.tsx';
@@ -10,7 +11,7 @@ import { FutureFeaturePlaceholder } from './components/future/FutureFeaturePlace
 import { BigDataAnalyticsView } from './components/analytics/BigDataAnalyticsView.tsx';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<NavigationTab>('catalogue');
+  const [activeTab, setActiveTab] = useState<NavigationTab>('home');
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [isHealthChecking, setIsHealthChecking] = useState(false);
 
@@ -79,6 +80,20 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'home' && (
+          <HomeView
+            onSearchSuccess={handleInspectProduct}
+            onNavigateToCatalogue={() => {
+              setSelectedProductAsin(null);
+              setActiveTab('catalogue');
+            }}
+            onNavigateToReviews={() => {
+              setReviewsParentAsinFilter('');
+              setActiveTab('reviews');
+            }}
+          />
+        )}
+
         {activeTab === 'overview' && (
           <OverviewView
             health={health}

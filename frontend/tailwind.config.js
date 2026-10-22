@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Calibri', "'Segoe UI'", 'Arial', 'sans-serif'],
+      },
       colors: {
         brand: {
           50: '#f0f7ff',
